@@ -1,0 +1,23 @@
+{
+  "name": "nodejs_lora_rfm95",
+  "version": "1.0.0",
+  "description": "Use the RFM95 Lora module with node.js",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theapi/nodejs_lora_rfm95.git"
+  },
+  "keywords": [
+    "lora",
+    "rfm95"
+  ],
+  "author": "Peter Clarke",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/theapi/nodejs_lora_rfm95/issues"
+  },
+  "homepage": "https://github.com/theapi/nodejs_lora_rfm95#readme"
+}
