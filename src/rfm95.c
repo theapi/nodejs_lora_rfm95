@@ -32,28 +32,31 @@ napi_value Hello(napi_env env, napi_callback_info info) {
 }
 
 
-napi_value RFM95_setMode(napi_env env, napi_callback_info info){
+napi_value RFM95_sleep(napi_env env, napi_callback_info info) {
   napi_status status;
-  size_t argc = 1;
-  int mode = 0;
-  napi_value argv[1];
+  uint8_t mode;
   napi_value response;
 
-  status = napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
+  mode = RFM95_MODE_SLEEP;
+
+  /* @todo Really set the mode */
+  status = napi_create_int32(env, mode, &response);
   if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Failed to parse arguments");
+    napi_throw_error(env, NULL, "Unable to create return value");
   }
 
-  /* Get the requested mode value from the first argument */
-  status = napi_get_value_int32(env, argv[0], &mode);
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Invalid number was passed as argument");
-  }
+  return response;
+}
 
-  /* Do work with the mode value */
+napi_value RFM95_rxContinuous(napi_env env, napi_callback_info info) {
+  napi_status status;
+  uint8_t mode;
+  napi_value response;
 
-  /* Fake response using a defined value */
-  status = napi_create_int32(env, RFM95_LOW_FREQUENCY_MODE, &response);
+  mode = RFM95_MODE_RXCONTINUOUS;
+
+  /* @todo Really set the mode */
+  status = napi_create_int32(env, mode, &response);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to create return value");
   }
@@ -64,7 +67,8 @@ napi_value RFM95_setMode(napi_env env, napi_callback_info info){
 napi_value Init(napi_env env, napi_value exports) {
   napi_status status;
   napi_value fn_hello;
-  napi_value fn_setMode;
+  napi_value fn_sleep;
+  napi_value fn_rxC;
 
   status = napi_create_function(env, NULL, 0, Hello, NULL, &fn_hello);
   if (status != napi_ok) {
@@ -75,11 +79,20 @@ napi_value Init(napi_env env, napi_value exports) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }
 
-  status = napi_create_function(env, NULL, 0, RFM95_setMode, NULL, &fn_setMode);
+  status = napi_create_function(env, NULL, 0, RFM95_sleep, NULL, &fn_sleep);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to wrap native function");
   }
-  status = napi_set_named_property(env, exports, "setMode", fn_setMode);
+  status = napi_set_named_property(env, exports, "sleep", fn_sleep);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Unable to populate exports");
+  }
+
+  status = napi_create_function(env, NULL, 0, RFM95_rxContinuous, NULL, &fn_rxC);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Unable to wrap native function");
+  }
+  status = napi_set_named_property(env, exports, "listen", fn_rxC);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }

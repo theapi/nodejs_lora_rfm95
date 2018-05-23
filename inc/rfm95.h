@@ -164,9 +164,13 @@ RFM95_StatusTypeDef RFM95_writeRegister(uint8_t addr, uint8_t val);
 uint8_t RFM95_readRegister(uint8_t addr);
 RFM95_StatusTypeDef RFM95_writeRegisterBurst(uint8_t addr, uint8_t *data, uint8_t len);
 
+RFM95_StatusTypeDef RFM95_setMode(uint8_t mode);
+RFM95_StatusTypeDef RFM95_send(uint8_t* data, uint8_t len);
+
 /* JS functions */
-napi_value RFM95_setMode(napi_env env, napi_callback_info info);
-napi_value RFM95_send(napi_env env, napi_callback_info info);
+napi_value RFM95_sleep(napi_env env, napi_callback_info info);
+napi_value RFM95_rxContinuous(napi_env env, napi_callback_info info);
+//napi_value RFM95_send(napi_env env, napi_callback_info info);
 
 #ifdef __cplusplus
 }
