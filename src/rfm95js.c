@@ -2,6 +2,9 @@
 #include "rfm95js.h"
 #include "rfm95.h"
 
+#include <stdio.h>
+#include <unistd.h>
+
 /**
  * Just a hello world example function as a start.
  */
@@ -62,6 +65,44 @@ napi_value RFM95js_rxContinuous(napi_env env, napi_callback_info info) {
   return response;
 }
 
+void bye_async_execute(napi_env env, void *data)
+{
+	sleep(1);
+	printf("Hello async\n");
+}
+
+void bye_async_complete(napi_env env, napi_status status, void* data)
+{
+	printf("Hello completed async\n");
+}
+
+napi_value bye_async(napi_env env, napi_callback_info info)
+{
+	napi_value retval;
+	napi_async_work work;
+	napi_value async_resource_name;
+
+	/*
+	 * napi_status napi_create_async_work(napi_env env,
+                                   napi_value async_resource,
+                                   napi_value async_resource_name,
+                                   napi_async_execute_callback execute,
+                                   napi_async_complete_callback complete,
+                                   void* data,
+                                   napi_async_work* result);
+	 * async_resource_name should be a null-terminated, UTF-8-encoded string.
+	 * Note: The async_resource_name identifier is provided by the user and should be representative of the type of async work being performed. It is also recommended to apply namespacing to the identifier, e.g. by including the module name.
+	 * See the async_hooks documentation for more information.
+	 */
+	napi_create_string_utf8(env, "bye:sleep", -1, &async_resource_name);
+	napi_create_async_work(env, NULL, async_resource_name, bye_async_execute, bye_async_complete, NULL, &work);
+	napi_queue_async_work(env, work);
+
+	napi_create_int64(env, 1373, &retval);
+
+	return retval;
+}
+
 napi_value Init(napi_env env, napi_value exports) {
   napi_status status;
   napi_value fn_hello;
@@ -91,6 +132,22 @@ napi_value Init(napi_env env, napi_value exports) {
     napi_throw_error(env, NULL, "Unable to wrap native function");
   }
   status = napi_set_named_property(env, exports, "listen", fn_rxC);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Unable to populate exports");
+  }
+
+  napi_property_descriptor desc[] = {
+  		{
+  			.utf8name = "byeASync",
+  			.method = bye_async,
+  			.getter = NULL,
+  			.setter = NULL,
+  			.value = NULL,
+  			.attributes = napi_default,
+  			.data = NULL
+  		}
+  	};
+  status = napi_define_properties(env, exports, 2, desc);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }
