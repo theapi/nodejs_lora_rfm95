@@ -65,19 +65,31 @@ napi_value RFM95js_rxContinuous(napi_env env, napi_callback_info info) {
   return response;
 }
 
-void bye_async_execute(napi_env env, void *data)
-{
+
+
+/* async example from https://github.com/1995parham/Napi101 */
+napi_value bye_sync(napi_env env, napi_callback_info info) {
+	napi_value retval;
+
+	printf("Hello sync\n");
 	sleep(1);
-	printf("Hello async\n");
+	printf("Bye sync\n");
+
+	napi_create_int64(env, 1373, &retval);
+
+	return retval;
 }
 
-void bye_async_complete(napi_env env, napi_status status, void* data)
-{
+void bye_async_execute(napi_env env, void *data) {
+	printf("Hello async\n");
+	sleep(3);
+}
+
+void bye_async_complete(napi_env env, napi_status status, void* data) {
 	printf("Hello completed async\n");
 }
 
-napi_value bye_async(napi_env env, napi_callback_info info)
-{
+napi_value bye_async(napi_env env, napi_callback_info info) {
 	napi_value retval;
 	napi_async_work work;
 	napi_value async_resource_name;
@@ -104,50 +116,55 @@ napi_value bye_async(napi_env env, napi_callback_info info)
 }
 
 napi_value Init(napi_env env, napi_value exports) {
-  napi_status status;
-  napi_value fn_hello;
-  napi_value fn_sleep;
-  napi_value fn_rxC;
-
-  status = napi_create_function(env, NULL, 0, Hello, NULL, &fn_hello);
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to wrap native function");
-  }
-  status = napi_set_named_property(env, exports, "hello", fn_hello);
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to populate exports");
-  }
-
-  status = napi_create_function(env, NULL, 0, RFM95js_sleep, NULL, &fn_sleep);
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to wrap native function");
-  }
-  status = napi_set_named_property(env, exports, "sleep", fn_sleep);
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to populate exports");
-  }
-
-  status = napi_create_function(env, NULL, 0, RFM95js_rxContinuous, NULL, &fn_rxC);
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to wrap native function");
-  }
-  status = napi_set_named_property(env, exports, "listen", fn_rxC);
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to populate exports");
-  }
 
   napi_property_descriptor desc[] = {
-  		{
-  			.utf8name = "byeASync",
-  			.method = bye_async,
-  			.getter = NULL,
-  			.setter = NULL,
-  			.value = NULL,
-  			.attributes = napi_default,
-  			.data = NULL
-  		}
-  	};
-  status = napi_define_properties(env, exports, 2, desc);
+    {
+      .utf8name = "hello",
+      .method = Hello,
+      .getter = NULL,
+      .setter = NULL,
+      .value = NULL,
+      .attributes = napi_default,
+      .data = NULL
+    },
+    {
+      .utf8name = "sleep",
+      .method = RFM95js_sleep,
+      .getter = NULL,
+      .setter = NULL,
+      .value = NULL,
+      .attributes = napi_default,
+      .data = NULL
+    },
+    {
+      .utf8name = "listen",
+      .method = RFM95js_rxContinuous,
+      .getter = NULL,
+      .setter = NULL,
+      .value = NULL,
+      .attributes = napi_default,
+      .data = NULL
+    },
+    {
+      .utf8name = "byeSync",
+      .method = bye_sync,
+      .getter = NULL,
+      .setter = NULL,
+      .value = NULL,
+      .attributes = napi_default,
+      .data = NULL
+    },
+    {
+      .utf8name = "byeASync",
+      .method = bye_async,
+      .getter = NULL,
+      .setter = NULL,
+      .value = NULL,
+      .attributes = napi_default,
+      .data = NULL
+    }
+  };
+  napi_status status = napi_define_properties(env, exports, 5, desc);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }
