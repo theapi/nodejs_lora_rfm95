@@ -6,7 +6,6 @@
 #endif
 
 #include "stdint.h"
-#include <node_api.h>
 
 /* Max number of octets the LORA Rx/Tx FIFO can hold */
 #define RF95_FIFO_SIZE 255
@@ -149,10 +148,10 @@ typedef struct
  */
 typedef enum
 {
-  HAL_OK       = 0x00U,
-  HAL_ERROR    = 0x01U,
-  HAL_BUSY     = 0x02U,
-  HAL_TIMEOUT  = 0x03U
+  RFM95_OK       = 0x00U,
+  RFM95_ERROR    = 0x01U,
+  RFM95_BUSY     = 0x02U,
+  RFM95_TIMEOUT  = 0x03U
 } RFM95_StatusTypeDef;
 
 /**
@@ -166,11 +165,6 @@ RFM95_StatusTypeDef RFM95_writeRegisterBurst(uint8_t addr, uint8_t *data, uint8_
 
 RFM95_StatusTypeDef RFM95_setMode(uint8_t mode);
 RFM95_StatusTypeDef RFM95_send(uint8_t* data, uint8_t len);
-
-/* JS functions */
-napi_value RFM95_sleep(napi_env env, napi_callback_info info);
-napi_value RFM95_rxContinuous(napi_env env, napi_callback_info info);
-//napi_value RFM95_send(napi_env env, napi_callback_info info);
 
 #ifdef __cplusplus
 }
