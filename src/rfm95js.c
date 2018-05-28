@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <assert.h>
+
 /**
  * Just a hello world example function as a start.
  */
@@ -94,6 +96,7 @@ napi_value bye_async(napi_env env, napi_callback_info info) {
 	napi_async_work work;
 	napi_value async_resource_name;
 
+
 	/*
 	 * napi_status napi_create_async_work(napi_env env,
                                    napi_value async_resource,
@@ -113,6 +116,33 @@ napi_value bye_async(napi_env env, napi_callback_info info) {
 	napi_create_int64(env, 1373, &retval);
 
 	return retval;
+}
+
+// https://github.com/nodejs/abi-stable-node-addon-examples/blob/master/3_callbacks/napi/addon.js
+
+napi_value RunCallback(napi_env env, const napi_callback_info info) {
+  napi_status status;
+
+  size_t argc = 1;
+  napi_value args[1];
+  status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
+  assert(status == napi_ok);
+
+  napi_value cb = args[0];
+//printf("cb %p\n", args[0]);
+  napi_value argv[1];
+  status = napi_create_string_utf8(env, "hello world", NAPI_AUTO_LENGTH, argv);
+  assert(status == napi_ok);
+
+  napi_value global;
+  status = napi_get_global(env, &global);
+  assert(status == napi_ok);
+
+  napi_value result;
+  status = napi_call_function(env, global, cb, 1, argv, &result);
+  assert(status == napi_ok);
+
+  return NULL;
 }
 
 napi_value Init(napi_env env, napi_value exports) {
@@ -163,8 +193,18 @@ napi_value Init(napi_env env, napi_value exports) {
       .attributes = napi_default,
       .data = NULL
     }
+    ,
+        {
+          .utf8name = "cbtest",
+          .method = RunCallback,
+          .getter = NULL,
+          .setter = NULL,
+          .value = NULL,
+          .attributes = napi_default,
+          .data = NULL
+        }
   };
-  napi_status status = napi_define_properties(env, exports, 5, desc);
+  napi_status status = napi_define_properties(env, exports, 6, desc);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }
