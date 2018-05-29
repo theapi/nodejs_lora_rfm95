@@ -4,8 +4,12 @@ const value = 16;
  console.log(rfm95.sleep());
  console.log(rfm95.listen());
 //
-console.log(rfm95.byeASync());
+//console.log(rfm95.byeASync());
 //console.log(rfm95.byeSync());
+
+rfm95.byeASync(function(msg){
+    console.log(msg);
+});
 
 rfm95.cbtest(function (msg) {
     console.log(msg);

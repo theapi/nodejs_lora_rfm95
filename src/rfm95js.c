@@ -89,12 +89,38 @@ void bye_async_execute(napi_env env, void *data) {
 
 void bye_async_complete(napi_env env, napi_status status, void* data) {
 	printf("Hello completed async\n");
+
+  napi_value argv[1];
+  status = napi_create_string_utf8(env, "hey an async callback!", NAPI_AUTO_LENGTH, argv);
+  assert(status == napi_ok);
+
+  napi_value global;
+  status = napi_get_global(env, &global);
+  assert(status == napi_ok);
+
+  napi_value result;
+  napi_value cb = data;
+  printf("cb %p\n", cb);
+  status = napi_call_function(env, global, cb, 1, argv, &result);
+  printf("status %u\n", status);
+  assert(status == napi_ok);
 }
 
 napi_value bye_async(napi_env env, napi_callback_info info) {
 	napi_value retval;
 	napi_async_work work;
 	napi_value async_resource_name;
+
+
+  napi_status status;
+
+  size_t argc = 1;
+  napi_value args[1];
+  status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
+  assert(status == napi_ok);
+
+  napi_value cb = args[0];
+  printf("cb %p\n", cb);
 
 
 	/*
@@ -110,7 +136,7 @@ napi_value bye_async(napi_env env, napi_callback_info info) {
 	 * See the async_hooks documentation for more information.
 	 */
 	napi_create_string_utf8(env, "bye:sleep", -1, &async_resource_name);
-	napi_create_async_work(env, NULL, async_resource_name, bye_async_execute, bye_async_complete, NULL, &work);
+	napi_create_async_work(env, NULL, async_resource_name, bye_async_execute, bye_async_complete, cb, &work);
 	napi_queue_async_work(env, work);
 
 	napi_create_int64(env, 1373, &retval);
@@ -192,17 +218,16 @@ napi_value Init(napi_env env, napi_value exports) {
       .value = NULL,
       .attributes = napi_default,
       .data = NULL
+    },
+    {
+      .utf8name = "cbtest",
+      .method = RunCallback,
+      .getter = NULL,
+      .setter = NULL,
+      .value = NULL,
+      .attributes = napi_default,
+      .data = NULL
     }
-    ,
-        {
-          .utf8name = "cbtest",
-          .method = RunCallback,
-          .getter = NULL,
-          .setter = NULL,
-          .value = NULL,
-          .attributes = napi_default,
-          .data = NULL
-        }
   };
   napi_status status = napi_define_properties(env, exports, 6, desc);
   if (status != napi_ok) {
