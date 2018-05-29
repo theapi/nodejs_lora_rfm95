@@ -7,6 +7,13 @@
 
 #include <assert.h>
 
+typedef struct carrier{
+int32_t _input;
+int32_t _output;
+napi_ref _callback;
+napi_async_work _request;
+}carrier;
+
 /**
  * Just a hello world example function as a start.
  */
@@ -91,7 +98,7 @@ void bye_async_complete(napi_env env, napi_status status, void* data) {
 	printf("Hello completed async\n");
 
   napi_value argv[1];
-  status = napi_create_string_utf8(env, "hey an async callback!", NAPI_AUTO_LENGTH, argv);
+  status = napi_create_string_utf8(env, "HeY!!! an async callback!", NAPI_AUTO_LENGTH, argv);
   assert(status == napi_ok);
 
   napi_value global;
@@ -99,11 +106,18 @@ void bye_async_complete(napi_env env, napi_status status, void* data) {
   assert(status == napi_ok);
 
   napi_value result;
-  napi_value cb = data;
+
+  napi_ref cb_ref = (napi_ref)data;
+  napi_value cb;
+	napi_get_reference_value(env, cb_ref, &cb);
+
   printf("cb %p\n", cb);
   status = napi_call_function(env, global, cb, 1, argv, &result);
   printf("status %u\n", status);
   assert(status == napi_ok);
+  napi_delete_reference(env, cb_ref);
+  //@todo delete async work too
+  //napi_delete_async_work(env, cb);
 }
 
 napi_value bye_async(napi_env env, napi_callback_info info) {
@@ -112,6 +126,8 @@ napi_value bye_async(napi_env env, napi_callback_info info) {
 	napi_value async_resource_name;
 
 
+  //carrier* c=(carrier*)malloc(sizeof(carrier));
+
   napi_status status;
 
   size_t argc = 1;
@@ -119,7 +135,9 @@ napi_value bye_async(napi_env env, napi_callback_info info) {
   status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
   assert(status == napi_ok);
 
-  napi_value cb = args[0];
+  //napi_ref cb = args[0];
+  napi_ref cb;
+  napi_create_reference(env, args[0], 1, &cb);
   printf("cb %p\n", cb);
 
 
