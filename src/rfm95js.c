@@ -85,12 +85,13 @@ napi_value bye_sync(napi_env env, napi_callback_info info) {
 }
 
 void bye_async_execute(napi_env env, void *data) {
-	printf("Hello async\n");
-	sleep(3);
+  RFM95js_data_t* c = (RFM95js_data_t*)data;
+	printf("Executing async using num_val = %d\n", c->num_val);
+	sleep(1);
 }
 
 void bye_async_complete(napi_env env, napi_status status, void* data) {
-	printf("Hello completed async\n");
+	printf("Completed async\n");
 
   napi_value argv[1];
   status = napi_create_string_utf8(env, "HeY!!! an async callback!", NAPI_AUTO_LENGTH, argv);
@@ -105,7 +106,7 @@ void bye_async_complete(napi_env env, napi_status status, void* data) {
   napi_value callback;
 	napi_get_reference_value(env, c->callback, &callback);
   status = napi_call_function(env, global, callback, 1, argv, &result);
-  printf("status %u\n", status);
+  
   assert(status == napi_ok);
   napi_delete_reference(env, c->callback);
   napi_delete_async_work(env, c->work);
@@ -118,12 +119,15 @@ napi_value bye_async(napi_env env, napi_callback_info info) {
 	napi_value async_resource_name;
   napi_status status;
 
-  size_t argc = 1;
-  napi_value args[1];
-  status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
+  // Two arguments: int, callback
+  size_t argc = 3;
+  napi_value argv[3];
+  status = napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
   assert(status == napi_ok);
+
   RFM95js_data_t* c = (RFM95js_data_t*)malloc(sizeof(RFM95js_data_t));
-  napi_create_reference(env, args[0], 1, &c->callback);
+  napi_get_value_int32(env, argv[0], &c->num_val);
+  napi_create_reference(env, argv[1], 1, &c->callback);
 
 	napi_create_string_utf8(env, "bye:sleep", -1, &async_resource_name);
 	napi_create_async_work(env, NULL, async_resource_name, bye_async_execute, bye_async_complete, c, &c->work);
