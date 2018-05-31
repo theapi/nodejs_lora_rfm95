@@ -2,17 +2,12 @@
 #include "rfm95js.h"
 #include "rfm95.h"
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 
 #include <assert.h>
 
-typedef struct carrier{
-int32_t _input;
-int32_t _output;
-napi_ref _callback;
-napi_async_work _request;
-}carrier;
 
 /**
  * Just a hello world example function as a start.
@@ -106,56 +101,33 @@ void bye_async_complete(napi_env env, napi_status status, void* data) {
   assert(status == napi_ok);
 
   napi_value result;
-
-  napi_ref cb_ref = (napi_ref)data;
-  napi_value cb;
-	napi_get_reference_value(env, cb_ref, &cb);
-
-  printf("cb %p\n", cb);
-  status = napi_call_function(env, global, cb, 1, argv, &result);
+  RFM95js_data_t* c = (RFM95js_data_t*)data;
+  napi_value callback;
+	napi_get_reference_value(env, c->callback, &callback);
+  status = napi_call_function(env, global, callback, 1, argv, &result);
   printf("status %u\n", status);
   assert(status == napi_ok);
-  napi_delete_reference(env, cb_ref);
-  //@todo delete async work too
-  //napi_delete_async_work(env, cb);
+  napi_delete_reference(env, c->callback);
+  napi_delete_async_work(env, c->work);
+  free(c);
 }
 
 napi_value bye_async(napi_env env, napi_callback_info info) {
 	napi_value retval;
-	napi_async_work work;
+	//napi_async_work work;
 	napi_value async_resource_name;
-
-
-  //carrier* c=(carrier*)malloc(sizeof(carrier));
-
   napi_status status;
 
   size_t argc = 1;
   napi_value args[1];
   status = napi_get_cb_info(env, info, &argc, args, NULL, NULL);
   assert(status == napi_ok);
+  RFM95js_data_t* c = (RFM95js_data_t*)malloc(sizeof(RFM95js_data_t));
+  napi_create_reference(env, args[0], 1, &c->callback);
 
-  //napi_ref cb = args[0];
-  napi_ref cb;
-  napi_create_reference(env, args[0], 1, &cb);
-  printf("cb %p\n", cb);
-
-
-	/*
-	 * napi_status napi_create_async_work(napi_env env,
-                                   napi_value async_resource,
-                                   napi_value async_resource_name,
-                                   napi_async_execute_callback execute,
-                                   napi_async_complete_callback complete,
-                                   void* data,
-                                   napi_async_work* result);
-	 * async_resource_name should be a null-terminated, UTF-8-encoded string.
-	 * Note: The async_resource_name identifier is provided by the user and should be representative of the type of async work being performed. It is also recommended to apply namespacing to the identifier, e.g. by including the module name.
-	 * See the async_hooks documentation for more information.
-	 */
 	napi_create_string_utf8(env, "bye:sleep", -1, &async_resource_name);
-	napi_create_async_work(env, NULL, async_resource_name, bye_async_execute, bye_async_complete, cb, &work);
-	napi_queue_async_work(env, work);
+	napi_create_async_work(env, NULL, async_resource_name, bye_async_execute, bye_async_complete, c, &c->work);
+	napi_queue_async_work(env, c->work);
 
 	napi_create_int64(env, 1373, &retval);
 

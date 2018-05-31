@@ -7,6 +7,10 @@
 
 #include <node_api.h>
 
+typedef struct {
+  napi_ref callback;
+  napi_async_work work;
+} RFM95js_data_t;
 
 napi_value RFM95js_sleep(napi_env env, napi_callback_info info);
 napi_value RFM95js_rxContinuous(napi_env env, napi_callback_info info);
