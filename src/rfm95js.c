@@ -1,3 +1,4 @@
+
 #include <node_api.h>
 #include "rfm95js.h"
 #include "rfm95.h"
@@ -115,15 +116,23 @@ void bye_async_complete(napi_env env, napi_status status, void* data) {
 
 napi_value bye_async(napi_env env, napi_callback_info info) {
 	napi_value retval;
-	//napi_async_work work;
 	napi_value async_resource_name;
   napi_status status;
 
-  // Two arguments: int, callback
   size_t argc = 3;
   napi_value argv[3];
   status = napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
   assert(status == napi_ok);
+
+  napi_valuetype valtype;
+  napi_typeof(env, argv[0], &valtype);
+	if (valtype != napi_number) {
+    napi_throw_error(env, NULL, "First argument must be a number");
+	}
+	napi_typeof(env, argv[1], &valtype);
+	if (valtype != napi_function) {
+    napi_throw_error(env, NULL, "Second argument must be a callback function");
+	}
 
   RFM95js_data_t* c = (RFM95js_data_t*)malloc(sizeof(RFM95js_data_t));
   napi_get_value_int32(env, argv[0], &c->num_val);
