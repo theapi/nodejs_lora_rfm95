@@ -5,12 +5,15 @@ const value = 16;
 // console.log(rfm95.listen());
 
 
-rfm95.byeASync(42, function(data) {
-    console.log(data);
-});
+
 
 var promise = rfm95.examplePromise(42);
 promise.then(console.log, console.error);
+console.log("Running...");
+
+rfm95.byeASync(42, function(data) {
+    console.log(data);
+});
 
 // rfm95.cbtest(function (msg) {
 //     console.log(msg);
