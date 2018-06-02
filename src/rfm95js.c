@@ -92,7 +92,7 @@ void bye_async_execute(napi_env env, void *data) {
 }
 
 void bye_async_complete(napi_env env, napi_status status, void* data) {
-	printf("Completed async\n");
+	//printf("Completed async\n");
 
   napi_value argv[1];
   status = napi_create_string_utf8(env, "HeY!!! an async callback!", NAPI_AUTO_LENGTH, argv);
@@ -174,44 +174,68 @@ napi_value RunCallback(napi_env env, const napi_callback_info info) {
   return NULL;
 }
 
+void eg_execute(napi_env env, void *data) {
+  RFM95js_data_t* c = (RFM95js_data_t*)data;
+	printf("Promise async using num_val = %d\n", c->num_val);
+	sleep(3);
+}
+
+void eg_complete(napi_env env, napi_status status, void* data) {
+	//printf("Completed promise\n");
+
+  napi_value argv[1];
+  status = napi_create_string_utf8(env, "Promises promises!", NAPI_AUTO_LENGTH, argv);
+  assert(status == napi_ok);
+
+  napi_value global;
+  status = napi_get_global(env, &global);
+  assert(status == napi_ok);
+
+  RFM95js_data_t* c = (RFM95js_data_t*)data;
+
+  // Resolve or reject the promise associated with the deferred depending on
+  // whether the asynchronous action succeeded.
+  if (1 == 1) {
+    status = napi_resolve_deferred(env, c->deferred, argv[0]);
+  } else {
+    status = napi_reject_deferred(env, c->deferred, argv[0]);
+  }
+  assert(status == napi_ok);
+
+  napi_delete_async_work(env, c->work);
+  free(c);
+}
+
 napi_value eg_promise(napi_env env, napi_callback_info info) {
   napi_status status;
   napi_value promise;
-  napi_deferred deferred;
 
   size_t argc = 1;
   napi_value argv[1];
   status = napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
   assert(status == napi_ok);
 
-  napi_valuetype valtype;
-  napi_typeof(env, argv[0], &valtype);
+  RFM95js_data_t* c = (RFM95js_data_t*)malloc(sizeof(RFM95js_data_t));
+  napi_get_value_int32(env, argv[0], &c->num_val);
 
-    // Create the promise.
-  status = napi_create_promise(env, &deferred, &promise);
+  // Create the promise.
+  status = napi_create_promise(env, &c->deferred, &promise);
   if (status != napi_ok) return NULL;
 
-
-  // Create a value with which to conclude the deferred.
-  napi_value undefined;
-  status = napi_get_undefined(env, &undefined);
-  assert(status == napi_ok);
-
-// NOT ASYNCRONOUS!!
-
-
-    // Resolve or reject the promise associated with the deferred depending on
-  // whether the asynchronous action succeeded.
-  if (valtype == napi_number) {
-    sleep(5);
-    status = napi_resolve_deferred(env, deferred, argv[0]);
-  } else {
-    status = napi_reject_deferred(env, deferred, undefined);
+  napi_valuetype valtype;
+  napi_typeof(env, argv[0], &valtype);
+	if (valtype != napi_number) {
+    napi_reject_deferred(env, c->deferred, argv[0]);
   }
-  assert(status == napi_ok);
+  else {
+    // Create the async function.
+    napi_value async_resource_name;
+    napi_create_string_utf8(env, "bye:sleep", -1, &async_resource_name);
+    napi_create_async_work(env, NULL, async_resource_name, eg_execute, eg_complete, c, &c->work);
+    napi_queue_async_work(env, c->work);
+  }
 
-	return promise;
-  
+	return promise;  
 }
 
 
