@@ -9,6 +9,7 @@
 
 typedef struct {
   int32_t num_val;
+  napi_deferred deferred;
   napi_ref callback;
   napi_async_work work;
 } RFM95js_data_t;

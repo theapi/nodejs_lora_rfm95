@@ -147,6 +147,72 @@ napi_value bye_async(napi_env env, napi_callback_info info) {
 	return retval;
 }
 
+void eg_execute(napi_env env, void *data) {
+  RFM95js_data_t* c = (RFM95js_data_t*)data;
+	printf("Promise async using num_val = %d\n", c->num_val);
+	sleep(1);
+}
+
+void eg_complete(napi_env env, napi_status status, void* data) {
+  napi_value undefined;
+
+	printf("Completed promise\n");
+
+  RFM95js_data_t* c = (RFM95js_data_t*)data;
+
+  // Create a value with which to conclude the deferred.
+  status = napi_get_undefined(env, &undefined);
+  assert(status == napi_ok);
+
+  // Resolve or reject the promise associated with the deferred depending on
+  // whether the asynchronous action succeeded.
+  if (1) {
+    status = napi_resolve_deferred(env, c->deferred, undefined);
+  } else {
+    status = napi_reject_deferred(env, c->deferred, undefined);
+  }
+  assert(status == napi_ok);
+
+  // At this point the deferred has been freed, so we should assign NULL to it.
+  c->deferred = NULL;
+
+}
+
+napi_value eg_promise(napi_env env, napi_callback_info info) {
+	napi_value resource_name;
+  napi_status status;
+  napi_value promise;
+
+  size_t argc = 1;
+  napi_value argv[1];
+  status = napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
+  assert(status == napi_ok);
+
+  napi_valuetype valtype;
+  napi_typeof(env, argv[0], &valtype);
+	if (valtype != napi_number) {
+    napi_throw_error(env, NULL, "First argument must be a number");
+	}
+
+
+
+  RFM95js_data_t* c = (RFM95js_data_t*)malloc(sizeof(RFM95js_data_t));
+  napi_get_value_int32(env, argv[0], &c->num_val);
+  
+    // Create the promise.
+  status = napi_create_promise(env, &c->deferred, &promise);
+  if (status != napi_ok) return NULL;
+
+	napi_create_string_utf8(env, "rfm95:examplPromise", -1, &resource_name);
+	napi_create_async_work(env, NULL, resource_name, eg_execute, eg_complete, c, &c->work);
+	napi_queue_async_work(env, c->work);
+
+	return promise;
+}
+
+
+
+
 // https://github.com/nodejs/abi-stable-node-addon-examples/blob/master/3_callbacks/napi/addon.js
 
 napi_value RunCallback(napi_env env, const napi_callback_info info) {
@@ -173,6 +239,8 @@ napi_value RunCallback(napi_env env, const napi_callback_info info) {
 
   return NULL;
 }
+
+
 
 napi_value Init(napi_env env, napi_value exports) {
 
@@ -214,8 +282,8 @@ napi_value Init(napi_env env, napi_value exports) {
       .data = NULL
     },
     {
-      .utf8name = "byeASync",
-      .method = bye_async,
+      .utf8name = "examplePromise",
+      .method = eg_promise,
       .getter = NULL,
       .setter = NULL,
       .value = NULL,
@@ -232,7 +300,7 @@ napi_value Init(napi_env env, napi_value exports) {
       .data = NULL
     }
   };
-  napi_status status = napi_define_properties(env, exports, 6, desc);
+  napi_status status = napi_define_properties(env, exports, 7, desc);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }

@@ -9,6 +9,9 @@ rfm95.byeASync(42, function(data) {
     console.log(data);
 });
 
+var promise = rfm95.examplePromise(42);
+promise.then(console.log, console.error);
+
 // rfm95.cbtest(function (msg) {
 //     console.log(msg);
 // });
