@@ -4,5 +4,11 @@ var promise = rfm95.examplePromise(42);
 promise.then(console.log, console.error);
 console.log("Running...");
 
-var mode = rfm95.setMode(0x05);
-mode.then(console.log, console.error);
+rfm95.setMode(0x05)
+    .then(function (status) {
+        console.log('OK ' + status)
+    })
+    .catch (function (err) {
+        console.error('Failed: ' + err)
+    });
+
