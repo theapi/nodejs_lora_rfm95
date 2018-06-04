@@ -152,19 +152,19 @@ typedef enum
   RFM95_ERROR    = 0x01U,
   RFM95_BUSY     = 0x02U,
   RFM95_TIMEOUT  = 0x03U
-} RFM95_StatusTypeDef;
+} RFM95_status_t;
 
 /**
  * Initialise the module.
  */
 void RFM95_init();
 
-RFM95_StatusTypeDef RFM95_writeRegister(uint8_t addr, uint8_t val);
+RFM95_status_t RFM95_writeRegister(uint8_t addr, uint8_t val);
 uint8_t RFM95_readRegister(uint8_t addr);
-RFM95_StatusTypeDef RFM95_writeRegisterBurst(uint8_t addr, uint8_t *data, uint8_t len);
+RFM95_status_t RFM95_writeRegisterBurst(uint8_t addr, uint8_t *data, uint8_t len);
 
-RFM95_StatusTypeDef RFM95_setMode(uint8_t mode);
-RFM95_StatusTypeDef RFM95_send(uint8_t* data, uint8_t len);
+RFM95_status_t RFM95_setMode(uint8_t mode);
+RFM95_status_t RFM95_send(uint8_t* data, uint8_t len);
 
 #ifdef __cplusplus
 }

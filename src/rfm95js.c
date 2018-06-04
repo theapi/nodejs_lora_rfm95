@@ -8,34 +8,35 @@
 #include <unistd.h>
 
 
-/* @todo Async */
-napi_value RFM95js_sleep(napi_env env, napi_callback_info info) {
-  napi_value val;
-
-  RFM95_StatusTypeDef rfm95_status = RFM95_setMode(RFM95_MODE_SLEEP);
-
-  napi_status status = napi_create_int32(env, rfm95_status, &val);
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to create return value");
-  }
-
-  return val;
+napi_value RFM95js_setMode(napi_env env, napi_callback_info info) {
+  napi_value resource_name;
+  napi_create_string_utf8(env, "rfm95:setMode", -1, &resource_name);
+  return RFM95js_promise(env, info, resource_name, RFM95js_setModeExecute, RFM95js_setModeComplete);
 }
 
-napi_value RFM95js_rxContinuous(napi_env env, napi_callback_info info) {
-  napi_status status;
-  uint8_t mode;
-  napi_value response;
+void RFM95js_setModeExecute(napi_env env, void *data) {
+  RFM95js_data_t* c = (RFM95js_data_t*) data;
+  c->status = RFM95_setMode(c->num_val);
+}
 
-  mode = RFM95_MODE_RXCONTINUOUS;
-
-  /* @todo Really set the mode */
-  status = napi_create_int32(env, mode, &response);
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to create return value");
+void RFM95js_setModeComplete(napi_env env, napi_status status, void* data) {
+  RFM95js_data_t* c = (RFM95js_data_t*) data;
+  napi_value num;
+  status = napi_create_int32(env, c->status, &num);
+  if (status == napi_ok) {
+    if (c->status == RFM95_OK) {
+      status = napi_resolve_deferred(env, c->deferred, num);
+    } else {
+      status = napi_reject_deferred(env, c->deferred, num);
+    }
   }
 
-  return response;
+  napi_delete_async_work(env, c->work);
+  free(c);
+
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Unable to create promise result.");
+  }
 }
 
 /**
@@ -73,18 +74,35 @@ void eg_complete(napi_env env, napi_status status, void* data) {
   } else {
     status = napi_reject_deferred(env, c->deferred, argv[0]);
   }
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to create promise result.");
-  }
 
   napi_delete_async_work(env, c->work);
   free(c);
+
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Unable to create promise result.");
+  }
 }
 
 /**
  * The function called by javascript to get a promise returned.
  */
 napi_value eg_promise(napi_env env, napi_callback_info info) {
+  napi_value resource_name;
+  napi_create_string_utf8(env, "example:promise", -1, &resource_name);
+  return RFM95js_promise(env, info, resource_name, eg_execute, eg_complete);
+}
+
+
+
+/**
+ * The function called by javascript to get a promise returned.
+ */
+napi_value RFM95js_promise(napi_env env, 
+  napi_callback_info info, 
+  napi_value resource_name,
+  napi_async_execute_callback execute,
+  napi_async_complete_callback complete) 
+  {
   napi_status status;
   napi_value promise;
 
@@ -116,31 +134,20 @@ napi_value eg_promise(napi_env env, napi_callback_info info) {
   }
   else {
     // Create the async function.
-    napi_value resource_name;
-    napi_create_string_utf8(env, "example:promise", -1, &resource_name);
-    napi_create_async_work(env, NULL, resource_name, eg_execute, eg_complete, c, &c->work);
+    //napi_create_string_utf8(env, "example:promise", -1, &resource_name);
+    napi_create_async_work(env, NULL, resource_name, execute, complete, c, &c->work);
     napi_queue_async_work(env, c->work);
   }
 
   return promise;
 }
 
-
 napi_value Init(napi_env env, napi_value exports) {
 
   napi_property_descriptor desc[] = {
     {
-      .utf8name = "sleep",
-      .method = RFM95js_sleep,
-      .getter = NULL,
-      .setter = NULL,
-      .value = NULL,
-      .attributes = napi_default,
-      .data = NULL
-    },
-    {
-      .utf8name = "listen",
-      .method = RFM95js_rxContinuous,
+      .utf8name = "setMode",
+      .method = RFM95js_setMode,
       .getter = NULL,
       .setter = NULL,
       .value = NULL,
@@ -157,7 +164,7 @@ napi_value Init(napi_env env, napi_value exports) {
       .data = NULL
     }
   };
-  napi_status status = napi_define_properties(env, exports, 3, desc);
+  napi_status status = napi_define_properties(env, exports, 2, desc);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }
