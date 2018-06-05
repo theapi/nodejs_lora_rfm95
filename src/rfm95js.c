@@ -7,11 +7,34 @@
 #include <stdio.h>
 #include <unistd.h>
 
-
-napi_value RFM95js_setMode(napi_env env, napi_callback_info info) {
+napi_value RFM95js_sleep(napi_env env, napi_callback_info info) {
   napi_value resource_name;
-  napi_create_string_utf8(env, "rfm95:setMode", -1, &resource_name);
-  return RFM95js_promise(env, info, resource_name, RFM95js_setModeExecute, RFM95js_setModeComplete);
+  int32_t number = RFM95_MODE_SLEEP;
+  napi_create_string_utf8(env, "rfm95:sleep", -1, &resource_name);
+  return RFM95js_promise(env, number, resource_name, RFM95js_setModeExecute, RFM95js_setModeComplete);
+}
+
+napi_value RFM95js_standby(napi_env env, napi_callback_info info) {
+  napi_value resource_name;
+  int32_t number = RFM95_MODE_STDBY;
+  napi_create_string_utf8(env, "rfm95:standby", -1, &resource_name);
+  return RFM95js_promise(env, number, resource_name, RFM95js_setModeExecute, RFM95js_setModeComplete);
+}
+
+napi_value RFM95js_listen(napi_env env, napi_callback_info info) {
+  napi_value resource_name;
+  int32_t number = RFM95_MODE_RXCONTINUOUS;
+  napi_create_string_utf8(env, "rfm95:listen", -1, &resource_name);
+  return RFM95js_promise(env, number, resource_name, RFM95js_listenExecute, RFM95js_setModeComplete);
+}
+
+void RFM95js_listenExecute(napi_env env, void *data) {
+  RFM95js_data_t* c = (RFM95js_data_t*) data;
+  c->status = RFM95_setMode(c->num_val);
+
+  /* Wait for a message */
+  sleep(10);
+
 }
 
 void RFM95js_setModeExecute(napi_env env, void *data) {
@@ -88,23 +111,7 @@ void eg_complete(napi_env env, napi_status status, void* data) {
  */
 napi_value eg_promise(napi_env env, napi_callback_info info) {
   napi_value resource_name;
-  napi_create_string_utf8(env, "example:promise", -1, &resource_name);
-  return RFM95js_promise(env, info, resource_name, eg_execute, eg_complete);
-}
-
-
-
-/**
- * The function called by javascript to get a promise returned.
- */
-napi_value RFM95js_promise(napi_env env, 
-  napi_callback_info info, 
-  napi_value resource_name,
-  napi_async_execute_callback execute,
-  napi_async_complete_callback complete) 
-  {
   napi_status status;
-  napi_value promise;
 
   size_t argc = 1;
   napi_value argv[1];
@@ -113,31 +120,42 @@ napi_value RFM95js_promise(napi_env env,
     napi_throw_error(env, NULL, "Unable to get javacript data.");
   }
 
+  int32_t number;
+  napi_get_value_int32(env, argv[0], &number);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Argument must be a number.");
+  }
+
+  napi_create_string_utf8(env, "example:promise", -1, &resource_name);
+  return RFM95js_promise(env, number, resource_name, eg_execute, eg_complete);
+}
+
+
+/**
+ * The function called by javascript to get a promise returned.
+ */
+napi_value RFM95js_promise(napi_env env,
+  int32_t number,
+  napi_value resource_name,
+  napi_async_execute_callback execute,
+  napi_async_complete_callback complete) 
+  {
+  napi_status status;
+  napi_value promise;
+
   RFM95js_data_t* c = (RFM95js_data_t*)malloc(sizeof(RFM95js_data_t));
-  napi_get_value_int32(env, argv[0], &c->num_val);
+  c->num_val = number;
 
   // Create the promise.
   status = napi_create_promise(env, &c->deferred, &promise);
   if (status != napi_ok) {
+    free(c);
     napi_throw_error(env, NULL, "Unable to create promise.");
   }
 
-  napi_valuetype valtype;
-  napi_typeof(env, argv[0], &valtype);
-  // Check for the correct calling of the function.
-  if (valtype != napi_number) {
-    // Not a number so reject the promise.
-    napi_value str[1];
-    napi_create_string_utf8(env, "Promise rejected: Argument not a number.", NAPI_AUTO_LENGTH, str);
-    napi_reject_deferred(env, c->deferred, str[0]);
-    free(c);
-  }
-  else {
-    // Create the async function.
-    //napi_create_string_utf8(env, "example:promise", -1, &resource_name);
-    napi_create_async_work(env, NULL, resource_name, execute, complete, c, &c->work);
-    napi_queue_async_work(env, c->work);
-  }
+  // Create the async function.
+  napi_create_async_work(env, NULL, resource_name, execute, complete, c, &c->work);
+  napi_queue_async_work(env, c->work);
 
   return promise;
 }
@@ -146,8 +164,26 @@ napi_value Init(napi_env env, napi_value exports) {
 
   napi_property_descriptor desc[] = {
     {
-      .utf8name = "setMode",
-      .method = RFM95js_setMode,
+      .utf8name = "sleep",
+      .method = RFM95js_sleep,
+      .getter = NULL,
+      .setter = NULL,
+      .value = NULL,
+      .attributes = napi_default,
+      .data = NULL
+    },
+    {
+      .utf8name = "standby",
+      .method = RFM95js_standby,
+      .getter = NULL,
+      .setter = NULL,
+      .value = NULL,
+      .attributes = napi_default,
+      .data = NULL
+    },
+    {
+      .utf8name = "listen",
+      .method = RFM95js_listen,
       .getter = NULL,
       .setter = NULL,
       .value = NULL,
@@ -164,7 +200,7 @@ napi_value Init(napi_env env, napi_value exports) {
       .data = NULL
     }
   };
-  napi_status status = napi_define_properties(env, exports, 2, desc);
+  napi_status status = napi_define_properties(env, exports, 4, desc);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }

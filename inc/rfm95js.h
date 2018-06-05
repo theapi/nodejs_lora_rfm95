@@ -16,16 +16,21 @@ typedef struct {
   RFM95_status_t status;
 } RFM95js_data_t;
 
-napi_value RFM95js_setMode(napi_env env, napi_callback_info info);
+
 void RFM95js_setModeExecute(napi_env env, void *data);
 void RFM95js_setModeComplete(napi_env env, napi_status status, void* data);
+
+napi_value RFM95js_sleep(napi_env env, napi_callback_info info);
+napi_value RFM95js_standby(napi_env env, napi_callback_info info);
+napi_value RFM95js_listen(napi_env env, napi_callback_info info);
+void RFM95js_listenExecute(napi_env env, void *data);
 
 /**
  * Start a promise for a js function.
  */
 napi_value RFM95js_promise(
   napi_env env, 
-  napi_callback_info info, 
+  int32_t number, 
   napi_value async_resource_name,
   napi_async_execute_callback execute,
   napi_async_complete_callback complete
