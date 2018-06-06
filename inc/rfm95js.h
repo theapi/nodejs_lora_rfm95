@@ -39,7 +39,7 @@ napi_value RFM95js_lastRssi(napi_env env, napi_callback_info info);
 napi_value RFM95js_promise(
   napi_env env, 
   int32_t number, 
-  napi_value async_resource_name,
+  char *name,
   napi_async_execute_callback execute,
   napi_async_complete_callback complete
 );
