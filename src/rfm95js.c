@@ -72,73 +72,6 @@ void RFM95js_setModeComplete(napi_env env, napi_status status, void* data) {
 }
 
 /**
- * Performs the asynchronous work.
- */
-void eg_execute(napi_env env, void *data) {
-  RFM95js_data_t* c = (RFM95js_data_t*)data;
-  printf("Promise async using num_val = %d\n", c->num_val);
-  sleep(3);
-}
-
-/**
- * Handle the completion of the asynchronous work.
- */
-void eg_complete(napi_env env, napi_status status, void* data) {
-  napi_value argv[1];
-  status = napi_create_string_utf8(env, "Promise resolved successfully!", NAPI_AUTO_LENGTH, argv);
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to create resloved message.");
-  }
-
-  napi_value global;
-  status = napi_get_global(env, &global);
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to get global data.");
-  }
-
-  RFM95js_data_t* c = (RFM95js_data_t*)data;
-
-  // Resolve or reject the promise associated with the deferred depending on
-  // whether the asynchronous action succeeded.
-  // Here we assume it's always successfull.
-  if (1 == 1) {
-    status = napi_resolve_deferred(env, c->deferred, argv[0]);
-  } else {
-    status = napi_reject_deferred(env, c->deferred, argv[0]);
-  }
-
-  napi_delete_async_work(env, c->work);
-  free(c);
-
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to create promise result.");
-  }
-}
-
-/**
- * The function called by javascript to get a promise returned.
- */
-napi_value eg_promise(napi_env env, napi_callback_info info) {
-  napi_status status;
-
-  size_t argc = 1;
-  napi_value argv[1];
-  status = napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to get javacript data.");
-  }
-
-  int32_t number;
-  napi_get_value_int32(env, argv[0], &number);
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Argument must be a number.");
-  }
-
-  return RFM95js_promise(env, number, "example:promise", eg_execute, eg_complete);
-}
-
-
-/**
  * Boilerplate promise creation.
  */
 napi_value RFM95js_promise(
@@ -199,18 +132,9 @@ napi_value Init(napi_env env, napi_value exports) {
       .value = NULL,
       .attributes = napi_default,
       .data = NULL
-    },
-    {
-      .utf8name = "examplePromise",
-      .method = eg_promise,
-      .getter = NULL,
-      .setter = NULL,
-      .value = NULL,
-      .attributes = napi_default,
-      .data = NULL
     }
   };
-  napi_status status = napi_define_properties(env, exports, 4, desc);
+  napi_status status = napi_define_properties(env, exports, 3, desc);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }
