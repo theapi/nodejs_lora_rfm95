@@ -25,6 +25,14 @@ napi_value RFM95js_standby(napi_env env, napi_callback_info info);
 napi_value RFM95js_listen(napi_env env, napi_callback_info info);
 void RFM95js_listenExecute(napi_env env, void *data);
 
+napi_value RFM95js_init(napi_env env, napi_callback_info info);
+napi_value RFM95js_setFrequency(napi_env env, napi_callback_info info);
+napi_value RFM95js_setModemConfig(napi_env env, napi_callback_info info);
+napi_value RFM95js_setTxPower(napi_env env, napi_callback_info info);
+napi_value RFM95js_available(napi_env env, napi_callback_info info);
+napi_value RFM95js_recv(napi_env env, napi_callback_info info);
+napi_value RFM95js_lastRssi(napi_env env, napi_callback_info info);
+
 /**
  * Start a promise for a js function.
  */
