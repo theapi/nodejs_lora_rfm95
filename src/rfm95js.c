@@ -53,9 +53,35 @@ void RFM95js_setFrequencyExecute(napi_env env, void *data) {
   c->status = RFM95_setFrequency(c->num_val);
 }
 
-// napi_value RFM95js_setModemConfig(napi_env env, napi_callback_info info) {
+napi_value RFM95js_setModemConfig(napi_env env, napi_callback_info info) {
+  napi_status status;
+  napi_value argv[1];
+  size_t argc = 1;
+  int32_t num;
 
-// }
+  status = napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Failed to parse arguments");
+  }
+
+  status = napi_get_value_int32(env, argv[0], &num);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Failed to undestand the frequency to set.");
+  }
+
+  return RFM95js_promise(
+    env,
+    num,
+    "rfm95:setModemConfig",
+    RFM95js_setModemConfigExecute,
+    RFM95js_promiseComplete
+  );
+}
+
+void RFM95js_setModemConfigExecute(napi_env env, void *data) {
+  RFM95js_data_t* c = (RFM95js_data_t*) data;
+  c->status = RFM95_setModemConfig(c->num_val);
+}
 
 napi_value RFM95js_setTxPower(napi_env env, napi_callback_info info) {
   napi_status status;
@@ -275,9 +301,18 @@ napi_value Init(napi_env env, napi_value exports) {
       .value = NULL,
       .attributes = napi_default,
       .data = NULL
+    },
+    {
+      .utf8name = "setModemConfig",
+      .method = RFM95js_setModemConfig,
+      .getter = NULL,
+      .setter = NULL,
+      .value = NULL,
+      .attributes = napi_default,
+      .data = NULL
     }
   };
-  napi_status status = napi_define_properties(env, exports, 4, desc);
+  napi_status status = napi_define_properties(env, exports, 5, desc);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }

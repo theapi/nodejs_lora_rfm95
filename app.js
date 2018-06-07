@@ -1,10 +1,15 @@
 const rfm95 = require('./build/Release/rfm95');
 
+const modemConfigs = rfm95.getModemConfigs();
 console.log(rfm95.getModemConfigs());
+console.log(modemConfigs.Bw125Cr45Sf128);
 
 var promise = rfm95.sleep();
 promise.then(console.log, console.error);
 console.log("Running...");
+
+rfm95.setModemConfig(modemConfigs.Bw125Cr45Sf128)
+    .then(console.log, console.error);
 
 
 rfm95.standby()
