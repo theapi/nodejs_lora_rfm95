@@ -1,3 +1,7 @@
+/**
+ * Cut down C implementation inspired by http://www.airspayce.com/mikem/arduino/RadioHead/classRH__RF95.html
+ *
+ */
 
 #ifndef __rfm95_H
 #define __rfm95_H
@@ -5,7 +9,8 @@
  extern "C" {
 #endif
 
-#include "stdint.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 /* Max number of octets the LORA Rx/Tx FIFO can hold */
 #define RF95_FIFO_SIZE 255
@@ -154,18 +159,20 @@ typedef enum
   RFM95_TIMEOUT  = 0x03U
 } RFM95_status_t;
 
-/**
- * Initialise the module.
- */
-void RFM95_init();
 
 RFM95_status_t RFM95_writeRegister(uint8_t addr, uint8_t val);
 uint8_t RFM95_readRegister(uint8_t addr);
 RFM95_status_t RFM95_writeRegisterBurst(uint8_t addr, uint8_t *data, uint8_t len);
 
-RFM95_status_t RFM95_setModeStr(char *str);
+RFM95_status_t RFM95_init();
+RFM95_status_t RFM95_setFrequency(int32_t freq);
+RFM95_status_t RFM95_setModemConfig(uint8_t mc);
+RFM95_status_t RFM95_setTxPower(int8_t power);
 RFM95_status_t RFM95_setMode(uint8_t mode);
-RFM95_status_t RFM95_send(uint8_t* data, uint8_t len);
+//RFM95_status_t RFM95_send(uint8_t* data, uint8_t len);
+bool RFM95_available();
+bool RFM95_recv(uint8_t* buf, uint8_t* len);
+int16_t RFM95_lastRssi();
 
 #ifdef __cplusplus
 }

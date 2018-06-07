@@ -18,7 +18,6 @@ typedef struct {
 
 
 void RFM95js_setModeExecute(napi_env env, void *data);
-void RFM95js_setModeComplete(napi_env env, napi_status status, void* data);
 
 napi_value RFM95js_sleep(napi_env env, napi_callback_info info);
 napi_value RFM95js_standby(napi_env env, napi_callback_info info);
@@ -37,12 +36,17 @@ napi_value RFM95js_lastRssi(napi_env env, napi_callback_info info);
  * Start a promise for a js function.
  */
 napi_value RFM95js_promise(
-  napi_env env, 
-  int32_t number, 
+  napi_env env,
+  int32_t number,
   char *name,
   napi_async_execute_callback execute,
   napi_async_complete_callback complete
 );
+void RFM95js_promiseComplete(napi_env env, napi_status status, void* data);
+
+void RFM95js_initExecute(napi_env env, void *data);
+void RFM95js_setFrequencyExecute(napi_env env, void *data);
+void RFM95js_setTxPowerExecute(napi_env env, void *data);
 
 
 #ifdef __cplusplus
