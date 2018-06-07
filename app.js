@@ -1,5 +1,7 @@
 const rfm95 = require('./build/Release/rfm95');
 
+console.log(rfm95.getModemConfigs());
+
 var promise = rfm95.sleep();
 promise.then(console.log, console.error);
 console.log("Running...");

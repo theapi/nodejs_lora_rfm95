@@ -195,6 +195,48 @@ napi_value RFM95js_promise(
   return promise;
 }
 
+/**
+ * Enum (eqivelent) of modem configs.
+ */
+napi_value RFM95js_modemConfigs(napi_env env, const napi_callback_info info) {
+  napi_status status;
+  napi_value obj;
+  status = napi_create_object(env, &obj);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Unable to create object.");
+  }
+
+  /*
+  Bw125Cr45Sf128 = 0,	   ///< Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Default medium range
+	Bw500Cr45Sf128,	           ///< Bw = 500 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Fast+short range
+	Bw31_25Cr48Sf512,	   ///< Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on. Slow+long range
+	Bw125Cr48Sf4096,           ///< Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on. Slow+long range
+  */
+  napi_value num;
+  status = napi_create_int32(env, 0, &num);
+  status = napi_set_named_property(env, obj, "Bw125Cr45Sf128", num);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Unable to use object.");
+  }
+  status = napi_create_int32(env, 1, &num);
+  status = napi_set_named_property(env, obj, "Bw500Cr45Sf128", num);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Unable to use object.");
+  }
+  status = napi_create_int32(env, 2, &num);
+  status = napi_set_named_property(env, obj, "Bw31_25Cr48Sf512", num);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Unable to use object.");
+  }
+  status = napi_create_int32(env, 3, &num);
+  status = napi_set_named_property(env, obj, "Bw125Cr48Sf4096", num);
+  if (status != napi_ok) {
+    napi_throw_error(env, NULL, "Unable to use object.");
+  }
+
+  return obj;
+}
+
 napi_value Init(napi_env env, napi_value exports) {
 
   napi_property_descriptor desc[] = {
@@ -224,9 +266,18 @@ napi_value Init(napi_env env, napi_value exports) {
       .value = NULL,
       .attributes = napi_default,
       .data = NULL
+    },
+    {
+      .utf8name = "getModemConfigs",
+      .method = RFM95js_modemConfigs,
+      .getter = NULL,
+      .setter = NULL,
+      .value = NULL,
+      .attributes = napi_default,
+      .data = NULL
     }
   };
-  napi_status status = napi_define_properties(env, exports, 3, desc);
+  napi_status status = napi_define_properties(env, exports, 4, desc);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }
