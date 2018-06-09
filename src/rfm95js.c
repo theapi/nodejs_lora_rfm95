@@ -294,6 +294,15 @@ napi_value Init(napi_env env, napi_value exports) {
       .data = NULL
     },
     {
+      .utf8name = "init",
+      .method = RFM95js_init,
+      .getter = NULL,
+      .setter = NULL,
+      .value = NULL,
+      .attributes = napi_default,
+      .data = NULL
+    },
+    {
       .utf8name = "getModemConfigs",
       .method = RFM95js_modemConfigs,
       .getter = NULL,
@@ -312,7 +321,7 @@ napi_value Init(napi_env env, napi_value exports) {
       .data = NULL
     }
   };
-  napi_status status = napi_define_properties(env, exports, 5, desc);
+  napi_status status = napi_define_properties(env, exports, 6, desc);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }

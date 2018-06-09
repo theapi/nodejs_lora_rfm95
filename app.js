@@ -4,6 +4,8 @@ const modemConfigs = rfm95.getModemConfigs();
 console.log(rfm95.getModemConfigs());
 console.log(modemConfigs.Bw125Cr45Sf128);
 
+rfm95.init().then(console.log, console.error);
+
 var promise = rfm95.sleep();
 promise.then(console.log, console.error);
 console.log("Running...");
