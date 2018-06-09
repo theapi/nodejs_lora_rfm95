@@ -1,7 +1,8 @@
 
-#include "rfm95.h"
-#include <stdbool.h>
 
+#include <rfm95spi.h>
+#include <rfm95.h>
+#include <stdbool.h>
 
 RFM95_status_t RFM95_init() {
   return RFM95_OK;
