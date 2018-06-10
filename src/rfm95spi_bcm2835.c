@@ -7,8 +7,12 @@
 
 #include <bcm2835.h>
 
-int RFM95spi_init() {
-  return bcm2835_init();
+RFM95_status_t RFM95spi_init() {
+  if (!bcm2835_init()) {
+    return RFM95_ERROR;
+  }
+
+  return RFM95_OK;
 }
 
 #endif

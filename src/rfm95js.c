@@ -9,6 +9,13 @@
 
 
 napi_value RFM95js_init(napi_env env, napi_callback_info info) {
+
+  #ifdef RFM95_RPI
+    printf("It's a Pi!\n");
+  #else
+    printf("Not a Pi\n");
+  #endif
+
   return RFM95js_promise(
     env,
     0,

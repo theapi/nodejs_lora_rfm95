@@ -5,15 +5,13 @@
 #include <stdbool.h>
 
 RFM95_status_t RFM95_init() {
-  int status;
+  RFM95_status_t status;
   status = RFM95spi_init();
-  //status = RFM95spi_init();
-  if (status == 1) {
-    return RFM95_OK;
+  if (status != RFM95_OK) {
+    return status;
   }
-  else {
-    return RFM95_ERROR;
-  }
+
+  return RFM95_OK;
 }
 
 RFM95_status_t RFM95_setFrequency(int32_t freq) {

@@ -4,8 +4,8 @@
 
 #ifndef RFM95_RPI
 
-int RFM95spi_init() {
-  return 1;
+RFM95_status_t RFM95spi_init() {
+  return RFM95_OK;
 }
 
 #endif
