@@ -5,11 +5,11 @@ console.log(rfm95.getModemConfigs());
 //console.log(modemConfigs.Bw125Cr45Sf128);
 
 rfm95.init()
-  .then(function (status) {
-    console.log('init: ' + status)
+  .then((msg) => {
+    console.log(msg)
   })
-  .catch (function (err) {
-    console.error('init failed: ' + err)
+  .catch ((err) => {
+    console.error('failed: ' + err)
   })
 ;
 
@@ -22,17 +22,17 @@ console.log("Running...");
 
 
 rfm95.standby()
-  .then(function (status) {
-      console.log('standby ' + status)
+  .then(function (msg) {
+      console.log(msg)
   })
   .catch (function (err) {
-      console.error('standby failed: ' + err)
+      console.error('failed: ' + err)
   });
 
 rfm95.listen()
-  .then(function (status) {
-      console.log('listen ' + status)
+  .then(function (msg) {
+      console.log(msg)
   })
   .catch (function (err) {
-      console.error('listen failed: ' + err)
+      console.error('failed: ' + err)
   });

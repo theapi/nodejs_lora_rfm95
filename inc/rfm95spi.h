@@ -8,9 +8,6 @@
 #include <stdint.h>
 #include <rfm95.h>
 
-#ifdef __arm__ //RPI
-  #define RFM95_RPI 1
-#endif
 
 /**
  * 

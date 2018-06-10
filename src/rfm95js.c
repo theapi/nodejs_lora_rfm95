@@ -13,7 +13,7 @@ napi_value RFM95js_init(napi_env env, napi_callback_info info) {
   #ifdef RFM95_RPI
     printf("It's a Pi!\n");
   #else
-    printf("Not a Pi\n");
+    printf("Not a Raspberry\n");
   #endif
 
   return RFM95js_promise(
@@ -178,13 +178,17 @@ void RFM95js_setModeExecute(napi_env env, void *data) {
 
 void RFM95js_promiseComplete(napi_env env, napi_status status, void* data) {
   RFM95js_data_t* c = (RFM95js_data_t*) data;
-  napi_value num;
-  status = napi_create_int32(env, c->status, &num);
+
+  char msg[64];
+  sprintf(msg, "%s : %d", c->resource_name, c->status);
+
+  napi_value js_msg;
+  status = napi_create_string_utf8(env, msg, NAPI_AUTO_LENGTH, &js_msg);
   if (status == napi_ok) {
     if (c->status == RFM95_OK) {
-      status = napi_resolve_deferred(env, c->deferred, num);
+      status = napi_resolve_deferred(env, c->deferred, js_msg);
     } else {
-      status = napi_reject_deferred(env, c->deferred, num);
+      status = napi_reject_deferred(env, c->deferred, js_msg);
     }
   }
 
@@ -208,6 +212,7 @@ napi_value RFM95js_promise(
 
   RFM95js_data_t* c = (RFM95js_data_t*) malloc(sizeof(RFM95js_data_t));
   c->num_val = number;
+  c->resource_name = name;
 
   // Create the promise.
   napi_value promise;
@@ -220,6 +225,7 @@ napi_value RFM95js_promise(
 
   napi_value resource_name;
   napi_create_string_utf8(env, name, -1, &resource_name);
+  
 
   // Create the async function.
   napi_create_async_work(env, NULL, resource_name, execute, complete, c, &c->work);

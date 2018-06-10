@@ -12,6 +12,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef __arm__
+  #define RFM95_RPI 1
+#endif
+
 /* Max number of octets the LORA Rx/Tx FIFO can hold */
 #define RF95_FIFO_SIZE 255
 

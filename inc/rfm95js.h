@@ -13,6 +13,7 @@ typedef struct {
   napi_deferred deferred;
   napi_ref callback;
   napi_async_work work;
+  char* resource_name;
   RFM95_status_t status;
 } RFM95js_data_t;
 

@@ -8,6 +8,11 @@
           "./src/rfm95spi_dummy.c",
           "./src/rfm95spi_bcm2835.c"
         ],
-        'include_dirs': [ "./inc" ]
+        'include_dirs': [ 
+          "./inc"
+        ],
+        "libraries": [
+          "/usr/local/lib/libbcm2835.a"
+        ]
     }]
 }
