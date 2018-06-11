@@ -1,4 +1,41 @@
 const rfm95 = require('./build/Release/rfm95');
+const xstate = require('xstate');
+
+
+const lightMachine = xstate.Machine({
+  key: 'light',
+  initial: 'green',
+  states: {
+    green: {
+      on: {
+        TIMER: 'yellow',
+      }
+    },
+    yellow: {
+      on: {
+        TIMER: 'red',
+      }
+    },
+    red: {
+      on: {
+        TIMER: 'green',
+      }
+    }
+  }
+});
+
+const currentState = 'green';
+
+const nextState = lightMachine
+  .transition(currentState, 'TIMER')
+  .value;
+
+console.log(nextState);
+
+
+
+
+
 
 const modemConfigs = rfm95.getModemConfigs();
 console.log(rfm95.getModemConfigs());

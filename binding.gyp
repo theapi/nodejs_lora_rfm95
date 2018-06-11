@@ -8,7 +8,7 @@
           "./src/rfm95spi_dummy.c",
           "./src/rfm95spi_bcm2835.c"
         ],
-        'include_dirs': [ 
+        'include_dirs': [
           "./inc"
         ],
         "libraries": [
