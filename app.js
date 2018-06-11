@@ -1,46 +1,78 @@
 const rfm95 = require('./build/Release/rfm95');
-const xstate = require('xstate');
 
 
-const lightMachine = xstate.Machine({
-  key: 'light',
-  initial: 'green',
-  states: {
-    green: {
-      on: {
-        TIMER: 'yellow',
-      }
-    },
-    yellow: {
-      on: {
-        TIMER: 'red',
-      }
-    },
-    red: {
-      on: {
-        TIMER: 'green',
-      }
-    }
+
+function changeState(state) {
+  switch (state) {
+    case 'failed':
+    break;
+
+    case 'init':
+      rfm95.init()
+        .then((msg) => {
+          console.log(msg);
+          state = changeState('setFrequency');
+        })
+        .catch ((err) => {
+          console.error('failed: ' + err);
+          state = changeState('failed');
+        })
+      ;
+    break;
+
+    case 'setFrequency':
+      rfm95.setFrequency(868)
+        .then((msg) => {
+          console.log(msg);
+          state = changeState('setModemConfig');
+        })
+        .catch ((err) => {
+          console.error('failed: ' + err);
+          state = changeState('failed');
+        })
+      ;
+    break;
+
+    case 'setModemConfig':
+      const modemConfigs = rfm95.getModemConfigs();
+      rfm95.setModemConfig(modemConfigs.Bw500Cr45Sf128)
+        .then((msg) => {
+          console.log(msg);
+          state = changeState('setTxPower');
+        })
+        .catch ((err) => {
+          console.error('failed: ' + err);
+          state = changeState('failed');
+        })
+      ;
+    break;
+
+    case 'setTxPower':
+      rfm95.setTxPower(23)
+        .then((msg) => {
+          console.log(msg);
+          state = changeState('available');
+        })
+        .catch ((err) => {
+          console.error('failed: ' + err);
+          state = changeState('failed');
+        })
+      ;
+    break;
   }
-});
 
-const currentState = 'green';
+  return state;  
+}
 
-const nextState = lightMachine
-  .transition(currentState, 'TIMER')
-  .value;
-
-console.log(nextState);
+let state = 'init';
+state = changeState(state);
 
 
-
-
-
-
-const modemConfigs = rfm95.getModemConfigs();
-console.log(rfm95.getModemConfigs());
+// const modemConfigs = rfm95.getModemConfigs();
+// console.log(rfm95.getModemConfigs());
 //console.log(modemConfigs.Bw125Cr45Sf128);
 
+/*
 rfm95.init()
   .then((msg) => {
     console.log(msg)
@@ -53,10 +85,6 @@ rfm95.init()
 var promise = rfm95.sleep();
 promise.then(console.log, console.error);
 console.log("Running...");
-
-// rfm95.setModemConfig(modemConfigs.Bw125Cr45Sf128)
-//   .then(console.log, console.error);
-
 
 rfm95.standby()
   .then(function (msg) {
@@ -73,3 +101,4 @@ rfm95.listen()
   .catch (function (err) {
       console.error('failed: ' + err)
   });
+  */

@@ -19,8 +19,5 @@
   "bugs": {
     "url": "https://github.com/theapi/nodejs_lora_rfm95/issues"
   },
-  "homepage": "https://github.com/theapi/nodejs_lora_rfm95#readme",
-  "dependencies": {
-    "xstate": "^3.3.2"
-  }
+  "homepage": "https://github.com/theapi/nodejs_lora_rfm95#readme"
 }
