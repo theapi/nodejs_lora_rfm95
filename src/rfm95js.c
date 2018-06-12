@@ -120,13 +120,38 @@ void RFM95js_setTxPowerExecute(napi_env env, void *data) {
   c->status = RFM95_setTxPower(c->num_val);
 }
 
-// napi_value RFM95js_available(napi_env env, napi_callback_info info) {
+napi_value RFM95js_available(napi_env env, napi_callback_info info) {
+  return RFM95js_promise(
+    env,
+    0,
+    "rfm95:available",
+    RFM95js_availableExecute,
+    RFM95js_promiseComplete
+  );
+}
 
-// }
+void RFM95js_availableExecute(napi_env env, void *data) {
+  RFM95js_data_t* c = (RFM95js_data_t*) data;
+  c->status = RFM95_available();
+}
 
-// napi_value RFM95js_recv(napi_env env, napi_callback_info info) {
+napi_value RFM95js_recv(napi_env env, napi_callback_info info) {
+  return RFM95js_promise(
+    env,
+    0,
+    "rfm95:recv",
+    RFM95js_recvExecute,
+    RFM95js_promiseComplete
+  );
+}
 
-// }
+void RFM95js_recvExecute(napi_env env, void *data) {
+  RFM95js_data_t* c = (RFM95js_data_t*) data;
+  uint8_t buf[32];
+  uint8_t len[32];
+  //@todo do this properly; return the buffer etc
+  c->status = RFM95_recv(buf, len);
+}
 
 // napi_value RFM95js_lastRssi(napi_env env, napi_callback_info info) {
 
@@ -225,7 +250,7 @@ napi_value RFM95js_promise(
 
   napi_value resource_name;
   napi_create_string_utf8(env, name, -1, &resource_name);
-  
+
 
   // Create the async function.
   napi_create_async_work(env, NULL, resource_name, execute, complete, c, &c->work);
@@ -350,9 +375,27 @@ napi_value Init(napi_env env, napi_value exports) {
       .value = NULL,
       .attributes = napi_default,
       .data = NULL
+    },
+    {
+      .utf8name = "available",
+      .method = RFM95js_available,
+      .getter = NULL,
+      .setter = NULL,
+      .value = NULL,
+      .attributes = napi_default,
+      .data = NULL
+    },
+    {
+      .utf8name = "recv",
+      .method = RFM95js_recv,
+      .getter = NULL,
+      .setter = NULL,
+      .value = NULL,
+      .attributes = napi_default,
+      .data = NULL
     }
   };
-  napi_status status = napi_define_properties(env, exports, 8, desc);
+  napi_status status = napi_define_properties(env, exports, 10, desc);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }

@@ -32,15 +32,34 @@ function changeState(state) {
     break;
 
     case 'listen':
-      console.log('wait for rfm95.available()');
+    rfm95.available()
+      .then((msg) => {
+        console.log(msg);
+        state = changeState('recv');
+      })
+      .catch ((err) => {
+        console.error('failed: ' + err);
+        state = changeState('failed');
+      })
+    ;
     break;
 
     case 'recv':
       // Process payload, then return to listen state.
+      rfm95.recv()
+      .then((msg) => {
+        console.log(msg);
+        state = changeState('listen');
+      })
+      .catch ((err) => {
+        console.error('failed: ' + err);
+        state = changeState('failed');
+      })
+    ;
     break;
   }
 
-  return state;  
+  return state;
 }
 
 // Start the state machine.

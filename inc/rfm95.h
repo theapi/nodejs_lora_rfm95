@@ -174,8 +174,8 @@ RFM95_status_t RFM95_setModemConfig(uint8_t mc);
 RFM95_status_t RFM95_setTxPower(int8_t power);
 RFM95_status_t RFM95_setMode(uint8_t mode);
 //RFM95_status_t RFM95_send(uint8_t* data, uint8_t len);
-bool RFM95_available();
-bool RFM95_recv(uint8_t* buf, uint8_t* len);
+RFM95_status_t RFM95_available();
+RFM95_status_t RFM95_recv(uint8_t* buf, uint8_t* len);
 int16_t RFM95_lastRssi();
 
 #ifdef __cplusplus

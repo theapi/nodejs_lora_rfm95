@@ -49,6 +49,8 @@ void RFM95js_initExecute(napi_env env, void *data);
 void RFM95js_setFrequencyExecute(napi_env env, void *data);
 void RFM95js_setTxPowerExecute(napi_env env, void *data);
 void RFM95js_setModemConfigExecute(napi_env env, void *data);
+void RFM95js_availableExecute(napi_env env, void *data);
+void RFM95js_recvExecute(napi_env env, void *data);
 
 
 #ifdef __cplusplus

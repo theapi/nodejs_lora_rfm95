@@ -3,6 +3,7 @@
 #include <rfm95spi.h>
 #include <rfm95.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 RFM95_status_t RFM95_init() {
   RFM95_status_t status;
@@ -30,12 +31,13 @@ RFM95_status_t RFM95_setMode(uint8_t mode) {
   return RFM95_OK;
 }
 
-bool RFM95_available() {
-  return true;
+RFM95_status_t RFM95_available() {
+  sleep(5);
+  return RFM95_OK;
 }
 
-bool RFM95_recv(uint8_t* buf, uint8_t* len) {
-  return true;
+RFM95_status_t RFM95_recv(uint8_t* buf, uint8_t* len) {
+  return RFM95_OK;
 }
 
 int16_t RFM95_lastRssi() {
