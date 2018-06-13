@@ -17,14 +17,6 @@ typedef struct {
   RFM95_status_t status;
 } RFM95js_data_t;
 
-
-void RFM95js_setModeExecute(napi_env env, void *data);
-
-napi_value RFM95js_sleep(napi_env env, napi_callback_info info);
-napi_value RFM95js_standby(napi_env env, napi_callback_info info);
-napi_value RFM95js_listen(napi_env env, napi_callback_info info);
-void RFM95js_listenExecute(napi_env env, void *data);
-
 napi_value RFM95js_init(napi_env env, napi_callback_info info);
 napi_value RFM95js_setFrequency(napi_env env, napi_callback_info info);
 napi_value RFM95js_setModemConfig(napi_env env, napi_callback_info info);

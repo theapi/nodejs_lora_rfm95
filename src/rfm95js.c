@@ -157,50 +157,6 @@ void RFM95js_recvExecute(napi_env env, void *data) {
 
 // }
 
-napi_value RFM95js_sleep(napi_env env, napi_callback_info info) {
-  return RFM95js_promise(
-    env,
-    RFM95_MODE_SLEEP,
-    "rfm95:sleep",
-    RFM95js_setModeExecute,
-    RFM95js_promiseComplete
-  );
-}
-
-napi_value RFM95js_standby(napi_env env, napi_callback_info info) {
-  return RFM95js_promise(
-    env,
-    RFM95_MODE_STDBY,
-    "rfm95:standby",
-    RFM95js_setModeExecute,
-    RFM95js_promiseComplete
-  );
-}
-
-napi_value RFM95js_listen(napi_env env, napi_callback_info info) {
-  return RFM95js_promise(
-    env,
-    RFM95_MODE_RXCONTINUOUS,
-    "rfm95:listen",
-    RFM95js_listenExecute,
-    RFM95js_promiseComplete
-  );
-}
-
-void RFM95js_listenExecute(napi_env env, void *data) {
-  RFM95js_data_t* c = (RFM95js_data_t*) data;
-  c->status = RFM95_setMode(c->num_val);
-
-  /* Wait for a message */
-  sleep(5);
-
-}
-
-void RFM95js_setModeExecute(napi_env env, void *data) {
-  RFM95js_data_t* c = (RFM95js_data_t*) data;
-  c->status = RFM95_setMode(c->num_val);
-}
-
 void RFM95js_promiseComplete(napi_env env, napi_status status, void* data) {
   RFM95js_data_t* c = (RFM95js_data_t*) data;
 
@@ -305,33 +261,6 @@ napi_value Init(napi_env env, napi_value exports) {
 
   napi_property_descriptor desc[] = {
     {
-      .utf8name = "sleep",
-      .method = RFM95js_sleep,
-      .getter = NULL,
-      .setter = NULL,
-      .value = NULL,
-      .attributes = napi_default,
-      .data = NULL
-    },
-    {
-      .utf8name = "standby",
-      .method = RFM95js_standby,
-      .getter = NULL,
-      .setter = NULL,
-      .value = NULL,
-      .attributes = napi_default,
-      .data = NULL
-    },
-    {
-      .utf8name = "listen",
-      .method = RFM95js_listen,
-      .getter = NULL,
-      .setter = NULL,
-      .value = NULL,
-      .attributes = napi_default,
-      .data = NULL
-    },
-    {
       .utf8name = "init",
       .method = RFM95js_init,
       .getter = NULL,
@@ -395,7 +324,7 @@ napi_value Init(napi_env env, napi_value exports) {
       .data = NULL
     }
   };
-  napi_status status = napi_define_properties(env, exports, 10, desc);
+  napi_status status = napi_define_properties(env, exports, 7, desc);
   if (status != napi_ok) {
     napi_throw_error(env, NULL, "Unable to populate exports");
   }
