@@ -25,6 +25,10 @@ napi_value RFM95js_available(napi_env env, napi_callback_info info);
 napi_value RFM95js_recv(napi_env env, napi_callback_info info);
 napi_value RFM95js_lastRssi(napi_env env, napi_callback_info info);
 
+napi_value RFM95js_readRegister(napi_env env, napi_callback_info info);
+void RFM95js_readRegisterExecute(napi_env env, void *data);
+void RFM95js_readRegisterComplete(napi_env env, napi_status status, void* data);
+
 /**
  * Start a promise for a js function.
  */

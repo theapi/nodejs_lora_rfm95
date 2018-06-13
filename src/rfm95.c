@@ -43,3 +43,7 @@ RFM95_status_t RFM95_recv(uint8_t* buf, uint8_t* len) {
 int16_t RFM95_lastRssi() {
   return 123;
 }
+
+uint8_t RFM95_readRegister(uint8_t addr) {
+  return 42;
+}
