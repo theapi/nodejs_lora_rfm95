@@ -1,9 +1,17 @@
 
 const rfm95 = require('./build/Release/rfm95');
 
-rfm95.readRegister(23)
+const addr = 0x01;
+
+rfm95.init()
   .then((msg) => {
-    console.log(msg);
+    return rfm95.readRegister(addr);
+  })
+  .then((val) => {
+    console.log(
+      'Register 0x' + Number(addr).toString(16).padStart(2, '0') 
+      + ' has value 0x' + Number(val).toString(16).padStart(2, '0')
+    );
   })
   .catch ((err) => {
     console.error(err);

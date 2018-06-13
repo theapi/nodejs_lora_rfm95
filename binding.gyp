@@ -11,7 +11,7 @@
         'include_dirs': [
           "./inc"
         ],
-        "XXXXlibraries": [
+        "libraries": [
           "/usr/local/lib/libbcm2835.a"
         ]
     }]

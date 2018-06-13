@@ -187,6 +187,7 @@ void RFM95js_readRegisterExecute(napi_env env, void *data) {
   uint8_t val = RFM95_readRegister(c->num_val);
   c->num_val = val;
   c->status = RFM95_OK;
+  //printf("reg: 0x%02X\n", val);
 }
 
 void RFM95js_readRegisterComplete(napi_env env, napi_status status, void* data) {

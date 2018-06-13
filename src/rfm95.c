@@ -45,5 +45,15 @@ int16_t RFM95_lastRssi() {
 }
 
 uint8_t RFM95_readRegister(uint8_t addr) {
-  return 42;
+  char cmd[2] = {0, 0};
+  char data[2] = {0, 0};
+
+  /* Add the read command to the address. */
+  cmd[0] = addr & ~RFM95_WRITE_MASK;
+
+  /* Transmit 1 byte and receive 1. Actually receive 2, but the first doesn't matter. */
+  RFM95spi_transfernb(cmd, data, 2);
+
+  /* The returned value is the second byte */
+  return data[1];
 }
