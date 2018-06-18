@@ -57,3 +57,7 @@ uint8_t RFM95_readRegister(uint8_t addr) {
   /* The returned value is the second byte */
   return data[1];
 }
+
+RFM95_status_t RFM95_writeRegister(uint8_t addr, uint8_t val) {
+  return RFM95_OK;
+}

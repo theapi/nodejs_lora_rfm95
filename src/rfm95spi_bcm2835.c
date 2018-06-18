@@ -3,7 +3,7 @@
 #include <rfm95spi.h>
 #include <stdio.h>
 
-#define RFM95_RPI 1
+//#define RFM95_RPI 1
 #ifdef RFM95_RPI //RPI
 
 #include <bcm2835.h>
