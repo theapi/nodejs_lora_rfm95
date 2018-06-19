@@ -58,6 +58,12 @@ uint8_t RFM95_readRegister(uint8_t addr) {
   return data[1];
 }
 
-RFM95_status_t RFM95_writeRegister(uint8_t addr, uint8_t val) {
-  return RFM95_OK;
+void RFM95_writeRegister(uint8_t addr, uint8_t val) {
+  char tbuf[2];
+  char rbuf[2];
+  /* Enable the write bit to the address. */
+  tbuf[0] = addr | RFM95_WRITE_MASK;
+  tbuf[1] = val;
+
+  RFM95spi_transfernb(tbuf, rbuf, 2);
 }

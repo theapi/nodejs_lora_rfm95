@@ -264,33 +264,22 @@ napi_value RFM95js_writeRegister(napi_env env, napi_callback_info info) {
 
 void RFM95js_writeRegisterExecute(napi_env env, void *data) {
   RFM95js_data_t* c = (RFM95js_data_t*) data;
-  c->status = RFM95_writeRegister(c->addr_val, c->num_val);
+  RFM95_writeRegister(c->addr_val, c->num_val);
 }
 
 void RFM95js_writeRegisterComplete(napi_env env, napi_status status, void* data) {
   RFM95js_data_t* c = (RFM95js_data_t*) data;
 
-  char msg[64];
-  sprintf(msg, "Failed to read register. RFM95_status_t = %d", c->status);
-  napi_value err;
-  status = napi_create_string_utf8(env, msg, NAPI_AUTO_LENGTH, &err);
-
   napi_value num;
   status = napi_create_int32(env, c->num_val, &num);
   if (status == napi_ok) {
-    if (c->status == RFM95_OK) {
-      status = napi_resolve_deferred(env, c->deferred, num);
-    } else {
-      status = napi_reject_deferred(env, c->deferred, err);
-    }
+    status = napi_resolve_deferred(env, c->deferred, num);
+  } else {
+    status = napi_reject_deferred(env, c->deferred, num);
   }
 
   napi_delete_async_work(env, c->work);
   free(c);
-
-  if (status != napi_ok) {
-    napi_throw_error(env, NULL, "Unable to create promise result.");
-  }
 }
 
 void RFM95js_promiseComplete(napi_env env, napi_status status, void* data) {

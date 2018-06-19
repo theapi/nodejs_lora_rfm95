@@ -164,9 +164,9 @@ typedef enum
 } RFM95_status_t;
 
 
-RFM95_status_t RFM95_writeRegister(uint8_t addr, uint8_t val);
+void RFM95_writeRegister(uint8_t addr, uint8_t val);
 uint8_t RFM95_readRegister(uint8_t addr);
-RFM95_status_t RFM95_writeRegisterBurst(uint8_t addr, uint8_t *data, uint8_t len);
+void RFM95_writeRegisterBurst(uint8_t addr, uint8_t *data, uint8_t len);
 
 RFM95_status_t RFM95_init();
 RFM95_status_t RFM95_setFrequency(int32_t freq);
