@@ -1,7 +1,7 @@
 
 const rfm95 = require('./build/Release/rfm95');
 
-const addr = 0x07; // RFM95_MODE
+const addr = 0x01; // RFM95_REG_OP_MODE
 
 rfm95.init()
   .then((msg) => {
