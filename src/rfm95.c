@@ -117,3 +117,48 @@ void RFM95_writeRegister(uint8_t addr, uint8_t val) {
 
   RFM95spi_transfernb(tbuf, rbuf, 2);
 }
+
+void RFM95_writeRegisterBurst(uint8_t addr, uint8_t *data, uint8_t len) {
+  uint8_t buffer_size = len + 1;
+  char tbuf[buffer_size];
+  char rbuf[buffer_size];
+  /* Enable the write bit to the address. */
+  tbuf[0] = addr | RFM95_WRITE_MASK;
+  /* Add the data to the transfer buffer */
+  for (int i = 0; 1 < len; i++) {
+    tbuf[i + 1] = data[i];
+  }
+  RFM95spi_transfernb(tbuf, rbuf, buffer_size);
+}
+
+RFM95_status_t RFM95_send(uint8_t* data, uint8_t len) {
+    RFM95_setMode(RFM95_MODE_STDBY);
+
+    // Position at the beginning of the FIFO
+    RFM95_writeRegister(RFM95_REG_FIFO_ADDR_PTR, 0);
+
+    // Packet format is preamble + explicit-header + payload + crc
+    // Explicit Header Mode
+    // payload is TO + FROM + ID + FLAGS + message data
+    // Same as Radiohead library.
+
+    // The headers
+    uint8_t txHeaderTo = RFM95_BROADCAST_ADDRESS;
+    uint8_t txHeaderFrom = RFM95_BROADCAST_ADDRESS;
+    uint8_t txHeaderId = 0;
+    uint8_t txHeaderFlags = 0;
+    RFM95_writeRegister(RFM95_REG_FIFO, txHeaderTo);
+    RFM95_writeRegister(RFM95_REG_FIFO, txHeaderFrom);
+    RFM95_writeRegister(RFM95_REG_FIFO, txHeaderId);
+    RFM95_writeRegister(RFM95_REG_FIFO, txHeaderFlags);
+    // The message data
+    RFM95_writeRegisterBurst(RFM95_REG_FIFO, data, len);
+    RFM95_writeRegister(RFM95_REG_PAYLOAD_LENGTH, len + RFM95_HEADER_LEN);
+
+    // Interrupt on TxDone
+    RFM95_writeRegister(RFM95_REG_DIO_MAPPING1, 0x40);
+    // Start the transmitter
+    RFM95_setMode(RFM95_MODE_TX);
+
+    return RFM95_OK;
+}
